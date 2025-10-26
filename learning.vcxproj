@@ -24,6 +24,7 @@
     <ProjectGuid>{8e385413-cfad-4866-ab6a-6850858ef227}</ProjectGuid>
     <RootNamespace>learning</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>CSnake</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

@@ -63,25 +63,40 @@ void startDirUpdates() {
 
 void placeFood() {
 	// place food at random position
-	foodPos[0] = colRange(gen);
-	foodPos[1] = rowRange(gen);
+	int temp[2] = { -2, 0 };
 
-	cout << foodPos[0] << foodPos[1];
+	do {
+		temp[0] = colRange(gen);
+		temp[1] = rowRange(gen);
+
+		
+		for (int i = 0; i < pos.size(); i++) {
+			if (pos[i][0] == temp[0] && pos[i][1] == temp[1]) {
+				temp[0] = -2; // reset to trigger re-roll
+				i += pos.size();
+			}
+		}
+	} while (temp[0] == -2);
+
+	foodPos[0] = temp[0];
+	foodPos[1] = temp[1];
 }
 
 // Function to print the board
 bool printBoard() {
 	printing = true;
 
+	bool quit = false;
 	for (int i = 0; i < rows; i++) { // each row
 		for (int j = 0; j < cols; j++) { // each column
 
 			// if player hits wall, return true to quit
 			if (pos[0][0] <= 0 || pos[0][0] >= cols - 1 || pos[0][1] <= 0 || pos[0][1] >= rows - 1)
-				return true;
+				quit = true;
 
 			// if head collides with food
 			bool printFood = false;
+			
 			if(foodPos[0] == j && foodPos[1] == i) {
 				if(pos[0][0] == foodPos[0] && pos[0][1] == foodPos[1]) {
 					// grow player
@@ -101,8 +116,27 @@ bool printBoard() {
 			bool printPlayer = false;
 			if (!printFood) {
 				for (int n = 0; n < pos.size(); n++) {
+					// if head hits a segment
 					if (n != 0 && pos[n][0] == pos[0][0] && pos[n][1] == pos[0][1]) {
-						return true;
+						if (pos[n][0] == j && pos[n][1] == i) {
+							for (int x = 0; x < pos.size(); x++) {
+								if (x != pos.size()-1) {
+									pos[x][0] = pos[x + 1][0];
+									pos[x][1] = pos[x + 1][1];
+								}
+								else {
+									pos[x][0] -= dir[x][0];
+									pos[x][1] -= dir[x][1];
+								}
+								
+							}
+
+							system("cls");
+							printBoard();
+							return true;
+						}			
+						
+						quit = true;
 					} else if (pos[n][0] == j && pos[n][1] == i) {
 						cout << "[]";
 						printPlayer = true;
@@ -123,7 +157,7 @@ bool printBoard() {
 		cout << endl;
 	}
 
-	return false;
+	return quit;
 }
 
 int main()
@@ -132,6 +166,7 @@ int main()
 	dir.push_back({ 0, 0 }); // initial direction up
 	
 	placeFood();
+	cout << foodPos[0] << " " << foodPos[1] << endl;
 
 	// set direction of head
 	thread dirThread(startDirUpdates);
@@ -139,12 +174,7 @@ int main()
 	// game loop
 	while (!quit)
 	{
-		// clear screen
-		system("cls");
-
-		// print board
-		quit = printBoard();
-		printing = false;
+		this_thread::sleep_for(chrono::milliseconds(160));
 
 		dir[0][0] = Direction::tempDir[0]; // update head direction
 		dir[0][1] = Direction::tempDir[1];
@@ -160,8 +190,19 @@ int main()
 			dir[i][0] = dir[i - 1][0]; dir[i][1] = dir[i - 1][1];
 		}
 
-		this_thread::sleep_for(chrono::milliseconds(300));
+		// clear screen
+		system("cls");
+
+		// print board
+		quit = printBoard();
+		printing = false;
 	}
+
+	cout << endl << "---------------------------------------------" << endl;
+	cout << "                 Score: " << pos.size();
+	cout << endl << "---------------------------------------------" << endl;
+	
+	system("pause");
 
 	dirThread.join();
 

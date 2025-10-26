@@ -24,6 +24,8 @@ std::mt19937 gen(rd()); // seed the generator
 std::uniform_int_distribution<> rowRange(1, rows-2); // define the range
 std::uniform_int_distribution<> colRange(1, cols-2); // define the range
 
+HANDLE stdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
 static class Direction {
 public:
 	static array<int, 2> tempDir;
@@ -106,7 +108,10 @@ bool printBoard() {
 				}
 				else {
 					// print food
+					SetConsoleTextAttribute(stdHandle, 0x0C);
 					cout << "()";
+					SetConsoleTextAttribute(stdHandle, 0x0F);
+
 					printFood = true;
 				}
 				
@@ -138,7 +143,9 @@ bool printBoard() {
 						
 						quit = true;
 					} else if (pos[n][0] == j && pos[n][1] == i) {
+						SetConsoleTextAttribute(stdHandle, 0x0A);
 						cout << "[]";
+						SetConsoleTextAttribute(stdHandle, 0x0F);
 						printPlayer = true;
 					}
 				}
@@ -191,17 +198,19 @@ int main()
 		}
 
 		// clear screen
-		system("cls");
+		SetConsoleCursorPosition(stdHandle, { 0, 0 });
 
 		// print board
 		quit = printBoard();
 		printing = false;
 	}
 
+	SetConsoleTextAttribute(stdHandle, 0x0E);
 	cout << endl << "---------------------------------------------" << endl;
 	cout << "                 Score: " << pos.size();
 	cout << endl << "---------------------------------------------" << endl;
-	
+	SetConsoleTextAttribute(stdHandle, 0x0F);
+
 	system("pause");
 
 	dirThread.join();
